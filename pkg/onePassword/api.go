@@ -1,4 +1,4 @@
-package pkg
+package onePassword
 
 import (
 	"bytes"
@@ -21,14 +21,13 @@ type EventsAPI struct {
 	BaseUrl   string
 }
 
-func NewEventsAPI(authToken string, url string) *EventsAPI {
+func NewEventsAPI(authToken, url string) *EventsAPI {
 	log.Println("New Events API Version:", Version)
-	client := &EventsAPI{
+	return &EventsAPI{
 		client:    &http.Client{},
 		AuthToken: authToken,
 		BaseUrl:   url,
 	}
-	return client
 }
 
 func (e *EventsAPI) request(ctx context.Context, method string, route string, body interface{}) (*http.Response, error) {

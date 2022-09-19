@@ -1,4 +1,4 @@
-package pkg
+package onePassword
 
 import (
 	"context"
@@ -8,28 +8,25 @@ import (
 	"net/http"
 )
 
-type SignInAttempt struct {
-	UUID        string                  `json:"uuid"`
-	SessionUUID string                  `json:"session_uuid"`
-	Timestamp   FixedFormatTime         `json:"timestamp"`
-	Country     string                  `json:"country"`
-	Category    string                  `json:"category"`
-	Type        string                  `json:"type"`
-	Details     *SignInAttemptDetails   `json:"details"`
-	TargetUser  SignInAttemptTargetUser `json:"target_user"`
-	Client      SignInAttemptClient     `json:"client"`
-	Location    *SignInAttemptLocation  `json:"location,omitempty"`
+type ItemUsage struct {
+	UUID        string             `json:"uuid"`
+	Timestamp   FixedFormatTime    `json:"timestamp"`
+	UsedVersion uint32             `json:"used_version"`
+	VaultUUID   string             `json:"vault_uuid"`
+	ItemUUID    string             `json:"item_uuid"`
+	User        ItemUsageUser      `json:"user"`
+	Client      ItemUsageClient    `json:"client"`
+	Location    *ItemUsageLocation `json:"location,omitempty"`
+	Action      string             `json:"action"`
 }
 
-type SignInAttemptDetails struct {
-	Value string `json:"value"`
-}
-type SignInAttemptTargetUser struct {
+type ItemUsageUser struct {
 	UUID  string `json:"uuid"`
 	Name  string `json:"name"`
 	Email string `json:"email"`
 }
-type SignInAttemptClient struct {
+
+type ItemUsageClient struct {
 	AppName         string `json:"app_name"`
 	AppVersion      string `json:"app_version"`
 	PlatformName    string `json:"platform_name"`
@@ -39,7 +36,7 @@ type SignInAttemptClient struct {
 	IPAddress       string `json:"ip_address"`
 }
 
-type SignInAttemptLocation struct {
+type ItemUsageLocation struct {
 	Country   string  `json:"country"`
 	Region    string  `json:"region"`
 	City      string  `json:"city"`
@@ -47,17 +44,12 @@ type SignInAttemptLocation struct {
 	Longitude float64 `json:"longitude"`
 }
 
-type CursorResponse struct {
-	Cursor  string `json:"cursor"`
-	HasMore bool   `json:"has_more"`
-}
-
-type SignInAttemptResponse struct {
+type ItemUsageResponse struct {
 	*CursorResponse
-	Items []SignInAttempt `json:"items"`
+	Items []ItemUsage `json:"items"`
 }
 
-func (s *SignInAttemptResponse) PrintEvents() error {
+func (s *ItemUsageResponse) PrintEvents() error {
 	for i, v := range s.Items {
 		raw, err := json.Marshal(v)
 		if err != nil {
@@ -69,8 +61,8 @@ func (s *SignInAttemptResponse) PrintEvents() error {
 	return nil
 }
 
-func (e *EventsAPI) SignInAttemptsRequest(ctx context.Context, body interface{}) (*SignInAttemptResponse, error) {
-	res, err := e.request(ctx, "POST", "/api/v1/signinattempts", body)
+func (e *EventsAPI) ItemUsagesRequest(ctx context.Context, body interface{}) (*ItemUsageResponse, error) {
+	res, err := e.request(ctx, "POST", "/api/v1/itemusages", body)
 	if err != nil {
 		err := fmt.Errorf("could not make EventAPIRequest: %w", err)
 		return nil, err
@@ -82,8 +74,8 @@ func (e *EventsAPI) SignInAttemptsRequest(ctx context.Context, body interface{})
 	}
 	res.Body.Close()
 
-	attemptsRes := &SignInAttemptResponse{}
-	err = json.Unmarshal(resBody, attemptsRes)
+	itemUsagesRes := &ItemUsageResponse{}
+	err = json.Unmarshal(resBody, itemUsagesRes)
 	if err != nil {
 		err := fmt.Errorf("could not unmarshal response: %s", string(resBody))
 		return nil, err
@@ -94,5 +86,5 @@ func (e *EventsAPI) SignInAttemptsRequest(ctx context.Context, body interface{})
 		return nil, err
 	}
 
-	return attemptsRes, nil
+	return itemUsagesRes, nil
 }
