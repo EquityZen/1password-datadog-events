@@ -11,6 +11,15 @@ type ConnectAPI struct {
 	HostName  string
 }
 
+type LogMessage struct {
+	Name     string `json:"name"`
+	URL      string `json:"URL"`
+	Title    string `json:"title"`
+	Action   string `json:"action"`
+	Email    string `json:"email"`
+	Category string `json:"category"`
+}
+
 func NewConnectAPI(authToken, host string) *ConnectAPI {
 	client := connect.NewClient(host, authToken)
 	return &ConnectAPI{
@@ -20,10 +29,10 @@ func NewConnectAPI(authToken, host string) *ConnectAPI {
 	}
 }
 
-func (c *ConnectAPI) RetrieveItemByTitle(itemUUID, vaultUUID string) (error, *onepassword.Item) {
+func (c *ConnectAPI) RetrieveItemByTitle(itemUUID, vaultUUID string) (*onepassword.Item, error) {
 	item, err := c.CClient.GetItem(itemUUID, vaultUUID)
 	if err != nil {
-		return err, nil
+		return nil, err
 	}
-	return nil, item
+	return item, err
 }

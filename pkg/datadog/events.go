@@ -11,6 +11,7 @@ import (
 
 type DDClient struct {
 	eventsApi datadogV1.EventsApi
+	logApi    datadogV1.LogsApi
 }
 
 func NewDataDogApiClient() *datadog.APIClient {
@@ -18,8 +19,8 @@ func NewDataDogApiClient() *datadog.APIClient {
 	return datadog.NewAPIClient(config)
 }
 
-func NewDataDogEventsAPI() *DDClient {
-	return &DDClient{*datadogV1.NewEventsApi(NewDataDogApiClient())}
+func NewDataDogAPI() *DDClient {
+	return &DDClient{*datadogV1.NewEventsApi(NewDataDogApiClient()), *datadogV1.NewLogsApi(NewDataDogApiClient())}
 }
 
 func (e *DDClient) CreateEventRequest(title, text string) datadogV1.EventCreateRequest {
@@ -30,6 +31,27 @@ func (e *DDClient) CreateEventRequest(title, text string) datadogV1.EventCreateR
 	}
 }
 
+func (e *DDClient) CreateLogItem(payload string) datadogV1.HTTPLogItem {
+	return datadogV1.HTTPLogItem{
+		Ddsource: datadog.PtrString("1Password"),
+		Ddtags:   datadog.PtrString("env:infra, version:beta"),
+		Hostname: datadog.PtrString("localhost"),
+		Message:  payload,
+		Service:  datadog.PtrString("1Password-Events"),
+	}
+}
+
+func (e *DDClient) PostLog(ctx context.Context, log datadogV1.HTTPLogItem) {
+	resp, r, err := e.logApi.SubmitLog(ctx, []datadogV1.HTTPLogItem{log}, *datadogV1.NewSubmitLogOptionalParameters())
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error when calling `LogsApi.SubmitLog`: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)
+	}
+
+	responseContent, _ := json.MarshalIndent(resp, "", "  ")
+	fmt.Fprintf(os.Stdout, "Response from `LogsApi.SubmitLog`:\n%s\n", responseContent)
+
+}
 func (e *DDClient) PostEvent(ctx context.Context, event datadogV1.EventCreateRequest) {
 	resp, r, err := e.eventsApi.CreateEvent(ctx, event)
 	if err != nil {
