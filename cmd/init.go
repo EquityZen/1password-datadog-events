@@ -16,7 +16,7 @@ type Service struct {
 func InitSettings(name string) Service {
 	var configFilePath string
 	var service Service
-	pflag.StringVar(&configFilePath, "config_file_name", fmt.Sprintf("keds-%v.yaml", name), "Name of configuration file")
+	pflag.StringVar(&configFilePath, "config_file_name", fmt.Sprintf("%v.yaml", name), "Name of configuration file")
 	pflag.Parse()
 	_ = viper.BindPFlags(pflag.CommandLine)
 
