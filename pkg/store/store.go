@@ -1,4 +1,4 @@
-package cache
+package store
 
 import (
 	"errors"
@@ -6,25 +6,25 @@ import (
 	"time"
 )
 
-type item struct {
+type Item struct {
 	Id       int64
-	itemUUID string
+	ItemUUID string
 }
 
 type cachedItem struct {
-	item
+	Item
 	expiredTimestamp int64
 }
 
-type cache struct {
+type Cache struct {
 	stop  chan struct{}
 	wg    sync.WaitGroup
 	mu    sync.Mutex
 	items map[int64]cachedItem
 }
 
-func NewCacheStore(cleanupInterval time.Duration) *cache {
-	c := &cache{
+func NewCacheStore(cleanupInterval time.Duration) *Cache {
+	c := &Cache{
 		stop:  make(chan struct{}),
 		items: make(map[int64]cachedItem),
 	}
@@ -32,12 +32,12 @@ func NewCacheStore(cleanupInterval time.Duration) *cache {
 	c.wg.Add(1)
 	go func(cleanupInterval time.Duration) {
 		defer c.wg.Done()
-		c.cleanup(cleanupInterval)
+		c.Cleanup(cleanupInterval)
 	}(cleanupInterval)
 	return c
 }
 
-func (c *cache) cleanup(interval time.Duration) {
+func (c *Cache) Cleanup(interval time.Duration) {
 	t := time.NewTicker(interval)
 	defer t.Stop()
 
@@ -57,39 +57,39 @@ func (c *cache) cleanup(interval time.Duration) {
 	}
 }
 
-func (c *cache) stopClean() {
+func (c *Cache) StopClean() {
 	close(c.stop)
 	c.wg.Wait()
 }
 
-func (c *cache) update(i item, expAt int64) {
+func (c *Cache) Update(i Item, expAt int64) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	c.items[i.Id] = cachedItem{
-		item:             i,
+		Item:             i,
 		expiredTimestamp: expAt,
 	}
 }
 
 var (
-	errItemNotInCache = errors.New("the user isn't in cache")
+	errItemNotInCache = errors.New("the user isn't in Cache")
 )
 
-func (c *cache) read(id int64) (item, error) {
+func (c *Cache) Read(id int64) (Item, error) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
 	ci, ok := c.items[id]
 	if ok {
-		return item{}, errItemNotInCache
+		return Item{}, errItemNotInCache
 	}
 
-	return ci.item, nil
+	return ci.Item, nil
 
 }
 
-func (c *cache) delete(id int64) {
+func (c *Cache) Delete(id int64) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 

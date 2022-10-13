@@ -31,18 +31,19 @@ func (e *DDClient) CreateEventRequest(title, text string) datadogV1.EventCreateR
 	}
 }
 
-func (e *DDClient) CreateLogItem(payload string) datadogV1.HTTPLogItem {
+func (e *DDClient) CreateLogItem(payload string, attributes map[string]string) datadogV1.HTTPLogItem {
 	return datadogV1.HTTPLogItem{
-		Ddsource: datadog.PtrString("1Password"),
-		Ddtags:   datadog.PtrString("env:infra, version:beta"),
-		Hostname: datadog.PtrString("localhost"),
-		Message:  payload,
-		Service:  datadog.PtrString("1Password-Events"),
+		Ddsource:             datadog.PtrString("1Password"),
+		Ddtags:               datadog.PtrString("env:infra, version:beta"),
+		Hostname:             datadog.PtrString("localhost"),
+		Message:              payload,
+		Service:              datadog.PtrString("1passwordevents"),
+		AdditionalProperties: attributes,
 	}
 }
 
 func (e *DDClient) PostLog(ctx context.Context, log datadogV1.HTTPLogItem) {
-	resp, r, err := e.logApi.SubmitLog(ctx, []datadogV1.HTTPLogItem{log}, *datadogV1.NewSubmitLogOptionalParameters())
+	resp, r, err := e.logApi.SubmitLog(ctx, []datadogV1.HTTPLogItem{log}, *datadogV1.NewSubmitLogOptionalParameters().WithContentEncoding(datadogV1.CONTENTENCODING_DEFLATE))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error when calling `LogsApi.SubmitLog`: %v\n", err)
 		fmt.Fprintf(os.Stderr, "Full HTTP response: %v\n", r)

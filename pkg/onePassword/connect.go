@@ -18,6 +18,7 @@ type LogMessage struct {
 	Action   string `json:"action"`
 	Email    string `json:"email"`
 	Category string `json:"category"`
+	Version  uint32 `json:"version"`
 }
 
 func NewConnectAPI(authToken, host string) *ConnectAPI {
