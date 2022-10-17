@@ -15,11 +15,11 @@ executors:
           GO111MODULE: "on"
           GOPRIVATE: "github.com/EquityZen/*"
 jobs:
-  run_tests:
-    - snyk/scan:
-        fail-on-issues: false
-        project: 'EquityZen/1password-datadog-events'
-        monitor-on-build: false
+#  run_tests:
+#    - snyk/scan:
+#        fail-on-issues: false
+#        project: 'EquityZen/1password-datadog-events'
+#        monitor-on-build: false
   build_image:
     parameters:
       harbor_password:
@@ -62,11 +62,11 @@ workflows:
   version: 2
   build:
     jobs:
-      - run_tests:
-          context:
-            - development
-          post-steps:
-            - jira/notify:
+#      - run_tests:
+#          context:
+#            - development
+#          post-steps:
+#            - jira/notify:
       - build_image:
           name: "Build 1Password Events container"
           harbor_password: $HarborDevPassword
