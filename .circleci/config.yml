@@ -65,8 +65,8 @@ workflows:
 #            - master
       - build_image:
           name: "Build 1Password Events container"
-          requires:
-            - run_tests
+#          requires:
+#            - run_tests
           harbor_password: $HarborDevPassword
           dockerfile: Dockerfile
           vault_role_id: c3a1002e-59e9-029d-ff20-d26a07c0013d
