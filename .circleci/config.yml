@@ -2,7 +2,6 @@ version: 2.1
 
 orbs:
   codecov: codecov/codecov@1.2.0
-  jira: circleci/jira@1.3.1
 executors:
   base_image:
     docker:
@@ -57,7 +56,6 @@ jobs:
               --build-arg "git_hash=$CIRCLE_SHA1" \
               --tag core.harbor.equityzen.com/<<parameters.harbor_repo>>/<<parameters.image_name>>:$CIRCLE_SHA1 .
             docker push core.harbor.equityzen.com/<<parameters.harbor_repo>>/<<parameters.image_name>>:$CIRCLE_SHA1
-      - jira/notify
 workflows:
   version: 2
   build:
@@ -65,8 +63,6 @@ workflows:
       - run_tests:
           context:
             - master
-          post-steps:
-            - jira/notify:
       - build_image:
           name: "Build 1Password Events container"
           requires:
