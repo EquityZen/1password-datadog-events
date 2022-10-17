@@ -60,7 +60,7 @@ workflows:
   version: 2
   build:
     jobs:
-      - run_tests:
+#      - run_tests:
 #          context:
 #            - master
       - build_image:
