@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: onepassword-config
+data:
+  onepassword.yaml: |-
+    role_id: {{ .Values.role_id }}
+    secret_id: {{ .Values.secret_id }}
+    secret_path: {{ .Values.secret_path }}

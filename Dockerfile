@@ -4,12 +4,12 @@ WORKDIR /go/src/github.com/EquityZen/1password-datadog-events/
 
 COPY . .
 
-ARG gh_token
+ARG gh_token=""
 RUN echo "machine github.com login ezbuildbot password $gh_token" >> ~/.netrc
 # Build app
 RUN GO111MODULE=on CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o onepassword /go/src/github.com/EquityZen/1password-datadog-events/cmd
 
-FROM alpine:latest
+FROM alpine
 # vault AppRole
 ARG secret_id
 ENV SECRET_ID=$secret_id
@@ -22,7 +22,7 @@ RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*
 WORKDIR /
 
 # copy the binary from builder
-COPY --from=builder /go/src/github.com/EquityZen/1password-datadog-events/cmd /usr/local/bin/onepassword
+COPY --from=builder /go/src/github.com/EquityZen/1password-datadog-events ./
 
 # run the binary
-CMD ["onepassword"]
+CMD ["./onepassword"]
