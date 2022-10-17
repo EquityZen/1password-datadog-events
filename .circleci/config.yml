@@ -16,6 +16,8 @@ executors:
           GOPRIVATE: "github.com/EquityZen/*"
 jobs:
   run_tests:
+    executor: go_tests
+    working_directory: /go/src/github.com/EquityZen/1password-datadog-events
     steps:
       - codecov/upload:
           file: /go/src/github.com/EquityZen/1password-datadog-events/c.out
