@@ -5,8 +5,8 @@
 FROM golang:alpine as builder
 
 # Install XZ and UPZ
-RUN apk update && apk add ca-certificates xz upx git && rm -rf /var/cache/apk/* \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk update apk add ca-certificates xz upx git && rm -rf /var/cache/apk/* \
+                   && rm -rf /var/lib/apt/lists/*
 
 ARG gh_token
 RUN echo "machine github.com login ezbuildbot password $gh_token" >> ~/.netrc
@@ -19,7 +19,7 @@ WORKDIR /go/src/github.com/EquityZen/1password-datadog-events/
 COPY . .
 
 # Build app
-RUN GO111MODULE=on CGO_ENABLED=0 GOOS=linux go build -ldflags "-X main.GitCommit=$git_hash" -a -installsuffix cgo -o onepassword github.com/EquityZen/1password-datadog-events/cmd
+RUN GO111MODULE=on CGO_ENABLED=0 GOOS=linux go build -ldflags "-X main.GitCommit=$git_hash" -a -installsuffix cgo -o onepassword github.com/EquityZen/1password-datadog-events/cmd/
 
 # strip and compress the binary
 RUN upx onepassword

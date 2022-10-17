@@ -1,0 +1,75 @@
+version: 2.1
+
+orbs:
+  codecov: codecov/codecov@1.2.0
+  jira: circleci/jira@1.3.1
+  snyk: snyk/snyk@1.1.2
+executors:
+  base_image:
+    docker:
+      - image: cimg/base:2020.01
+  go_tests:
+    docker:
+      - image: circleci/golang:latest
+        environment:
+          GO111MODULE: "on"
+          GOPRIVATE: "github.com/EquityZen/*"
+jobs:
+  run_tests:
+    - snyk/scan:
+        fail-on-issues: false
+        project: 'EquityZen/keds'
+        monitor-on-build: false
+  build_image:
+    parameters:
+      harbor_password:
+        type: string
+        default: ""
+      harbor_username:
+        type: string
+        default: "robot\\$CICD"
+      harbor_repo:
+        type: string
+        default: "master"
+      image_name:
+        type: string
+        default: ""
+      dockerfile:
+        type: string
+        default: ""
+      vault_role_id:
+        type: string
+        default: ""
+      vault_secret_id:
+        type: string
+        default: ""
+    executor: base_image
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run:
+          command: |
+            echo << parameters.harbor_password >> | docker login -u << parameters.harbor_username >> --password-stdin https://core.harbor.equityzen.com
+            docker build -f << parameters.dockerfile >> \
+              --build-arg "role_id=<<parameters.vault_role_id>>" \
+              --build-arg "secret_id=<<parameters.vault_secret_id>>" \
+              --build-arg "gh_token=$GH_TOKEN" \
+              --build-arg "git_hash=$CIRCLE_SHA1" \
+              --tag core.harbor.equityzen.com/<<parameters.harbor_repo>>/<<parameters.image_name>>:$CIRCLE_SHA1 .
+            docker push core.harbor.equityzen.com/<<parameters.harbor_repo>>/<<parameters.image_name>>:$CIRCLE_SHA1
+      - jira/notify
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build_image:
+          name: "Build 1Password Events container"
+          harbor_password: $HarborDevPassword
+          dockerfile: Dockerfile
+          vault_role_id: c3a1002e-59e9-029d-ff20-d26a07c0013d
+          vault_secret_id: $DEV_VAULT_SECRET_ID
+          image_name: onepassword-events
+          filters:
+            branches:
+              only:
+                - master
