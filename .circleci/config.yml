@@ -18,7 +18,7 @@ jobs:
   run_tests:
     - snyk/scan:
         fail-on-issues: false
-        project: 'EquityZen/keds'
+        project: 'EquityZen/1password-datadog-events'
         monitor-on-build: false
   build_image:
     parameters:
