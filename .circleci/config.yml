@@ -62,6 +62,11 @@ workflows:
   version: 2
   build:
     jobs:
+      - run_tests:
+          context:
+            - development
+          post-steps:
+            - jira/notify:
       - build_image:
           name: "Build 1Password Events container"
           harbor_password: $HarborDevPassword
