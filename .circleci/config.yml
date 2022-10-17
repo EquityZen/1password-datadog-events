@@ -3,7 +3,6 @@ version: 2.1
 orbs:
   codecov: codecov/codecov@1.2.0
   jira: circleci/jira@1.3.1
-  snyk: snyk/snyk@1.1.2
 executors:
   base_image:
     docker:
@@ -21,10 +20,6 @@ jobs:
     steps:
       - codecov/upload:
           file: /go/src/github.com/EquityZen/1password-datadog-events/c.out
-      - snyk/scan:
-          fail-on-issues: false
-          project: 'EquityZen/1password-datadog-events'
-          monitor-on-build: false
   build_image:
     parameters:
       harbor_password:
