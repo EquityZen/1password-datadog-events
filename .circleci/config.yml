@@ -56,22 +56,22 @@ jobs:
               --build-arg "git_hash=$CIRCLE_SHA1" \
               --tag core.harbor.equityzen.com/<<parameters.harbor_repo>>/<<parameters.image_name>>:$CIRCLE_SHA1 .
             docker push core.harbor.equityzen.com/<<parameters.harbor_repo>>/<<parameters.image_name>>:$CIRCLE_SHA1
-workflows:
-  version: 2
-  build:
-    jobs:
+#workflows:
+#  version: 2
+#  build:
+#    jobs:
 #      - run_tests:
 #          context:
 #            - master
-      - build_image:
-          name: "Build 1Password Events container"
+#      - build_image:
+#          name: "Build 1Password Events container"
 #          requires:
 #            - run_tests
-          harbor_password: $HarborDevPassword
-          dockerfile: Dockerfile
-          vault_role_id: c3a1002e-59e9-029d-ff20-d26a07c0013d
-          vault_secret_id: $DEV_VAULT_SECRET_ID
-          image_name: onepassword-events
+#          harbor_password: $HarborDevPassword
+#          dockerfile: Dockerfile
+#          vault_role_id: c3a1002e-59e9-029d-ff20-d26a07c0013d
+#          vault_secret_id: $DEV_VAULT_SECRET_ID
+#          image_name: onepassword-events
 #          filters:
 #            branches:
 #              only:
