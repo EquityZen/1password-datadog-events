@@ -64,7 +64,6 @@ func InitSettings(name string) Service {
 
 	// defaults
 	viper.SetDefault("log_level", logrus.InfoLevel)
-	viper.SetDefault("schedule_lookup", "* * * * *")
 
 	return service
 }
