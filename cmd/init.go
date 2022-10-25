@@ -34,7 +34,7 @@ func InitSettings(name string) Service {
 
 	viper.SetDefault("events_api", "https://events.1password.com")
 	viper.SetDefault("connect_api", "onepassword-connect.1password")
-	viper.SetDefault("vault_address", "https://vault.equityzen.com")
+	viper.SetDefault("vault_address", "https://vault.nyc.equityzen.com")
 	viper.SetDefault("secret_path", "secret/onepassword")
 	viper.SetDefault("cron_schedule", "*/10 * * * *")
 
